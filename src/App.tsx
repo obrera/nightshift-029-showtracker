@@ -297,6 +297,13 @@ export default function App() {
   );
 
   const selectedWatchlistEntry = detail ? watchlist[detail.show.id] : null;
+  const watchlistItems = useMemo(
+    () =>
+      Object.values(watchlist).sort((left, right) =>
+        right.updatedAt.localeCompare(left.updatedAt),
+      ),
+    [watchlist],
+  );
   const stats = useMemo(() => {
     if (!detail) return null;
     const aired = detail.episodes.filter((episode) => !!episode.airdate).length;
@@ -623,6 +630,44 @@ export default function App() {
             {!detailLoading && !detailError && !detail ? (
               <div className="state-card">Select a show to inspect its full detail panel.</div>
             ) : null}
+          </section>
+
+          <section className="panel">
+            <div className="section-heading">
+              <div>
+                <h2>Watchlist</h2>
+                <p>Persistent statuses, ratings, and notes</p>
+              </div>
+            </div>
+
+            {watchlistItems.length === 0 ? (
+              <div className="state-card">
+                Your watchlist is empty. Save a show from the detail panel to start tracking it.
+              </div>
+            ) : (
+              <div className="watchlist-list">
+                {watchlistItems.map((item) => (
+                  <article key={item.show.id} className="watchlist-card">
+                    <div className="section-heading compact">
+                      <div>
+                        <h3>{item.show.name}</h3>
+                        <p>
+                          {item.status} • rating {item.rating ?? "unset"}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        className="ghost-button"
+                        onClick={() => setSelectedShowId(item.show.id)}
+                      >
+                        Open
+                      </button>
+                    </div>
+                    <p>{item.notes || "No notes saved yet."}</p>
+                  </article>
+                ))}
+              </div>
+            )}
           </section>
 
           <section className="panel">
